@@ -7,7 +7,10 @@ export const transactionSchema = z.object({
     .positive("O valor deve ser maior que zero."),
   date: z.string().min(1, "Informe uma data."),
   type: z.enum(["income", "expense"], { error: "Selecione o tipo." }),
-  category_id: z.string().uuid().nullable().optional(),
+  category_id: z.preprocess(
+    (val) => (val === "" ? undefined : val),
+    z.string().uuid().nullable().optional()
+  ),
 });
 
 export type TransactionFormValues = z.infer<typeof transactionSchema>;

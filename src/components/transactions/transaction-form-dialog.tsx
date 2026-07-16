@@ -56,7 +56,7 @@ export function TransactionFormDialog({
       amount: transaction?.amount ?? undefined,
       date: transaction?.date ?? new Date().toISOString().slice(0, 10),
       type: transaction?.type ?? "expense",
-      category_id: transaction?.category_id ?? categories[0]?.id ?? "",
+      category_id: transaction?.category_id ?? categories[0]?.id ?? undefined,
     },
   });
 
@@ -73,7 +73,7 @@ export function TransactionFormDialog({
           amount: undefined,
           date: new Date().toISOString().slice(0, 10),
           type: "expense",
-          category_id: categories[0]?.id ?? "",
+          category_id: categories[0]?.id ?? undefined,
         });
       }
       setOpen(false);

@@ -25,6 +25,14 @@ export async function getCategories() {
 
 export async function getTransactions(filters: TransactionFilters) {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return [];
+  }
+
   const now = new Date();
   const month = filters.month ?? now.getMonth() + 1;
   const year = filters.year ?? now.getFullYear();
@@ -33,6 +41,7 @@ export async function getTransactions(filters: TransactionFilters) {
   let query = supabase
     .from("financas_transactions")
     .select("*, financas_categories(id, name)")
+    .eq("user_id", user.id)
     .gte("date", start)
     .lt("date", end)
     .order("date", { ascending: false });
