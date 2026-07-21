@@ -9,7 +9,13 @@ import {
 import { AuthForm } from "@/components/auth/auth-form";
 import { login } from "@/lib/actions/auth";
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
+
   return (
     <div className="flex min-h-svh flex-col items-center justify-center bg-muted/30 p-4">
       <Link href="/" className="mb-6 text-xl font-semibold">
@@ -23,6 +29,13 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {error === "confirm_failed" && (
+            <p className="mb-4 text-sm text-destructive">
+              Não foi possível confirmar seu e-mail. O link pode ter
+              expirado — tente se cadastrar novamente ou faça login se já
+              confirmou antes.
+            </p>
+          )}
           <AuthForm
             action={login}
             submitLabel="Entrar"
