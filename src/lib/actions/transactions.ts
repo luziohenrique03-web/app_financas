@@ -37,10 +37,18 @@ export async function updateTransaction(
   const validated = transactionSchema.parse(values);
 
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error("Sessão expirada. Faça login novamente.");
+  }
+
   const { error } = await supabase
     .from("financas_transactions")
     .update({ ...validated, updated_at: new Date().toISOString() })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("user_id", user.id);
 
   if (error) {
     throw new Error("Não foi possível atualizar a transação.");
@@ -52,10 +60,18 @@ export async function updateTransaction(
 
 export async function deleteTransaction(id: string) {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error("Sessão expirada. Faça login novamente.");
+  }
+
   const { error } = await supabase
     .from("financas_transactions")
     .delete()
-    .eq("id", id);
+    .eq("id", id)
+    .eq("user_id", user.id);
 
   if (error) {
     throw new Error("Não foi possível excluir a transação.");

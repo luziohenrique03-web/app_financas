@@ -29,46 +29,14 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
 
 ### Banco de dados
 
-As tabelas usadas pelo app têm o prefixo `financas_` (`financas_categories`, `financas_transactions`) para não colidir com outras tabelas em projetos Supabase compartilhados. O schema, RLS policies e seed de categorias estão documentados no plano de implementação; para recriar em um projeto novo, rode o SQL abaixo no SQL Editor do Supabase:
-
-```sql
-create table financas_categories (
-  id uuid primary key default gen_random_uuid(),
-  name text not null unique,
-  created_at timestamptz default now()
-);
-
-create type financas_transaction_type as enum ('income', 'expense');
-
-create table financas_transactions (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references auth.users(id) on delete cascade,
-  description text not null,
-  amount numeric(12,2) not null check (amount > 0),
-  date date not null,
-  type financas_transaction_type not null,
-  category_id uuid references financas_categories(id),
-  created_at timestamptz default now(),
-  updated_at timestamptz default now()
-);
-
-create index financas_transactions_user_id_date_idx on financas_transactions(user_id, date desc);
-
-alter table financas_transactions enable row level security;
-create policy "select_own" on financas_transactions for select using (auth.uid() = user_id);
-create policy "insert_own" on financas_transactions for insert with check (auth.uid() = user_id);
-create policy "update_own" on financas_transactions for update using (auth.uid() = user_id);
-create policy "delete_own" on financas_transactions for delete using (auth.uid() = user_id);
-
-alter table financas_categories enable row level security;
-create policy "read_all_categories" on financas_categories for select using (true);
-
-insert into financas_categories (name) values
-('Alimentação'),('Transporte'),('Moradia'),('Lazer'),('Saúde'),
-('Educação'),('Salário'),('Freelance'),('Outros');
-```
+As tabelas usadas pelo app têm o prefixo `financas_` (`financas_categories`, `financas_transactions`) para não colidir com outras tabelas em projetos Supabase compartilhados. O schema completo, com RLS policies e seed de categorias, está em [`supabase-schema.sql`](./supabase-schema.sql) — rode esse arquivo no **SQL Editor** do seu projeto Supabase para recriar as tabelas.
 
 > Por padrão, o Supabase exige confirmação de e-mail antes do primeiro login. Isso pode ser ajustado em **Authentication → Providers → Email** no dashboard do Supabase, caso queira permitir login imediato após o cadastro.
+
+### Segurança
+
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` é a chave **publishable/anon** do Supabase — ela é destinada a ser exposta no cliente e depende das políticas de **Row Level Security** (já habilitadas em `supabase-schema.sql`) para restringir o acesso aos dados de cada usuário. Nunca coloque a chave `service_role` (secreta) em variáveis `NEXT_PUBLIC_*` nem no código do cliente.
+- Todas as queries de transações no servidor ([src/lib/data/transactions.ts](./src/lib/data/transactions.ts), [src/lib/actions/transactions.ts](./src/lib/actions/transactions.ts)) filtram explicitamente por `user_id` do usuário autenticado, como camada extra de defesa além do RLS.
 
 ## Deploy na Vercel
 

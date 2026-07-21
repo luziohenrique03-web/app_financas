@@ -58,7 +58,6 @@ export function TransactionFilters({ categories }: { categories: Category[] }) {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       updateParam("q", search);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, 350);
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
