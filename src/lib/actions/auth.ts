@@ -6,6 +6,15 @@ import { authSchema } from "@/lib/validations/transaction";
 
 export type AuthState = { error?: string; message?: string } | undefined;
 
+const FALLBACK_ERROR = "Não foi possível concluir a operação. Tente novamente em instantes.";
+
+function readableAuthError(message: string | undefined) {
+  if (!message || !/[a-zA-ZÀ-ÿ]/.test(message)) {
+    return FALLBACK_ERROR;
+  }
+  return message;
+}
+
 export async function login(
   _state: AuthState,
   formData: FormData
@@ -48,7 +57,7 @@ export async function signup(
   const { data, error } = await supabase.auth.signUp(validated.data);
 
   if (error) {
-    return { error: error.message };
+    return { error: readableAuthError(error.message) };
   }
 
   if (!data.session) {
