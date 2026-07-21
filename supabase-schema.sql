@@ -62,5 +62,7 @@ values
   ('Educação'),
   ('Lazer'),
   ('Salário'),
+  ('Trabalho'),
+  ('Investimentos'),
   ('Outros')
 on conflict (name) do nothing;

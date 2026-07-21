@@ -10,6 +10,8 @@ const CATEGORY_COLORS: Record<string, string> = {
   Lazer: "#008300",
   Saúde: "#4a3aa7",
   Educação: "#e34948",
+  Trabalho: "#546e7a",
+  Investimentos: "#0d9488",
   Outros: "#e87ba4",
 };
 const FALLBACK_COLOR = "#898781";
