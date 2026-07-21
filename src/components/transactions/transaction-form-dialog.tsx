@@ -108,12 +108,30 @@ export function TransactionFormDialog({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="amount">Valor (R$)</Label>
-              <Input
-                id="amount"
-                type="number"
-                step="0.01"
-                min="0"
-                {...register("amount")}
+              <Controller
+                name="amount"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    id="amount"
+                    inputMode="numeric"
+                    placeholder="0,00"
+                    value={
+                      field.value === undefined ||
+                      field.value === null ||
+                      Number.isNaN(Number(field.value))
+                        ? ""
+                        : Number(field.value).toLocaleString("pt-BR", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })
+                    }
+                    onChange={(e) => {
+                      const digits = e.target.value.replace(/\D/g, "");
+                      field.onChange(digits ? Number(digits) / 100 : undefined);
+                    }}
+                  />
+                )}
               />
               {errors.amount && (
                 <p className="text-sm text-destructive">
